@@ -24,14 +24,30 @@ jenny = User { userId = 2, userName = "jenny" }
 allUsers :: [User]
 allUsers = [bob, jenny]
 
+matchesId :: Int -> User -> Bool
+matchesId id user =
+    userId user == id 
+
 
 routes :: ScottyM ()
 routes = do
     get "/hello" hello
+    get "/users" listUsers
+    get "/users/:id" $ do
+        id <- param "id"
+        json $ findUser id
 
 hello :: ActionM ()
 hello = do
     text "Hello world!"
+
+listUsers :: ActionM ()
+listUsers = do
+    json allUsers
+
+findUser :: Int -> User
+findUser id =
+    head $ filter (matchesId id) allUsers
 
 main :: IO ()
 main = do
