@@ -1,31 +1,30 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric, DeriveAnyClass #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE FlexibleContexts #-}
 module Main where
 
 import Web.Scotty
-import Data.Aeson (FromJSON, ToJSON)
+import Data.Aeson
 import GHC.Generics
 
 
 data User = User {
-        userId :: String,
+        userId :: Int,
         userName :: String
-    } deriving (Show, Generic)
+    } deriving (Show, Generic, ToJSON, FromJSON)
 
 instance ToJSON User
 instance FromJSON User
 
 bob :: User
-bob = User { userId = "1", userName = "bob" }
+bob = User { userId = 1, userName = "bob" }
 
 jenny :: User
-jenny = User { userId = "2", userName = "jenny" }
+jenny = User { userId = 2, userName = "jenny" }
 
 allUsers :: [User]
 allUsers = [bob, jenny]
 
-matchesId :: String -> User -> Bool
+matchesId :: Int -> User -> Bool
 matchesId id user =
     userId user == id 
 
@@ -39,7 +38,7 @@ routes = do
         json $ findUser id
     post "/users" $ do
         user <- jsonData
-        json (user :: User)
+        json $ encode (user :: User)
 
 hello :: ActionM ()
 hello = do
@@ -49,7 +48,7 @@ listUsers :: ActionM ()
 listUsers = do
     json allUsers
 
-findUser :: String -> User
+findUser :: Int -> User
 findUser id =
     head $ filter (matchesId id) allUsers
 
