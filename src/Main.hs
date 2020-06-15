@@ -1,12 +1,19 @@
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 module Main where
 
 import Web.Scotty
+import Data.Aeson (FromJSON, ToJSON)
+import GHC.Generics
+
 
 data User = User {
         userId :: Int,
         userName :: String
-    } deriving Show
+    } deriving (Show, Generic)
+
+instance ToJSON User
+instance FromJSON User
 
 bob :: User
 bob = User { userId = 1, userName = "bob" }
