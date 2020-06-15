@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE FlexibleContexts #-}
 module Main where
 
 import Web.Scotty
@@ -8,7 +9,7 @@ import GHC.Generics
 
 
 data User = User {
-        userId :: Int,
+        userId :: String,
         userName :: String
     } deriving (Show, Generic)
 
@@ -16,15 +17,15 @@ instance ToJSON User
 instance FromJSON User
 
 bob :: User
-bob = User { userId = 1, userName = "bob" }
+bob = User { userId = "1", userName = "bob" }
 
 jenny :: User
-jenny = User { userId = 2, userName = "jenny" }
+jenny = User { userId = "2", userName = "jenny" }
 
 allUsers :: [User]
 allUsers = [bob, jenny]
 
-matchesId :: Int -> User -> Bool
+matchesId :: String -> User -> Bool
 matchesId id user =
     userId user == id 
 
@@ -36,6 +37,9 @@ routes = do
     get "/users/:id" $ do
         id <- param "id"
         json $ findUser id
+    post "/users" $ do
+        user <- jsonData
+        json (user :: User)
 
 hello :: ActionM ()
 hello = do
@@ -45,7 +49,7 @@ listUsers :: ActionM ()
 listUsers = do
     json allUsers
 
-findUser :: Int -> User
+findUser :: String -> User
 findUser id =
     head $ filter (matchesId id) allUsers
 
